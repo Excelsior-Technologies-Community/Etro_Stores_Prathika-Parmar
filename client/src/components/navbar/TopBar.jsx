@@ -32,7 +32,7 @@ const TopBar = () => {
                 
                 {/* Left Section */}
                 <div className="flex items-center gap-3 sm:gap-5 h-full">
-                    <span className="hidden lg:flex items-center text-[12px] tracking-wide border-r border-[#1c384c] pr-5 h-full">
+                    <span className="hidden lg:flex items-center text-[12px] tracking-wide  border-[#1c384c] pr-5 h-full">
                         CALL US NOW: 0123-444-666
                     </span>
 

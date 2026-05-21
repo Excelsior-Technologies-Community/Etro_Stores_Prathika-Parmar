@@ -1,15 +1,22 @@
+/* 1. Google Fonts MUST be the absolute first line */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+/* 2. Then import Tailwind v4 */
 @import "tailwindcss";
 
+/* 3. Your custom CSS variables and overrides */
+@theme {
+  /* In v4, you add custom theme colors here if needed */
+}
+
+/* Force Edge-to-Edge Layout */
 html, body, #root {
-  width: 100vw !important;
-  max-width: 100vw !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  overflow-x: hidden !important; 
-  background-color: #f9fafb !important; /* Light gray body */
-  font-family: 'Inter', sans-serif;
-  color: #333333;
+  width: 100vw;
+  max-width: 100vw;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden; 
+  background-color: #f9fafb;
 }
 
 * {
@@ -17,8 +24,3 @@ html, body, #root {
   padding: 0;
   box-sizing: border-box;
 }
-
-/* Scrollbar */
-::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: #e5e7eb; }
-::-webkit-scrollbar-thumb { background: #9ca3af; border-radius: 20px; }
