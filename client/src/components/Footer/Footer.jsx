@@ -1,4 +1,32 @@
+import React, { useState, useEffect } from 'react';
+import { FiChevronUp } from 'react-icons/fi'; // Imported arrow icon for the scroll button
+
 const Footer = () => {
+    // State to track if the scroll-to-top button should be visible
+    const [isVisible, setIsVisible] = useState(false);
+
+    // Monitor window scroll coordinates to toggle visibility state
+    useEffect(() => {
+        const toggleVisibility = () => {
+            if (window.pageYOffset > 300) {
+                setIsVisible(true);
+            } else {
+                setIsVisible(false);
+            }
+        };
+
+        window.addEventListener('scroll', toggleVisibility);
+        return () => window.removeEventListener('scroll', toggleVisibility);
+    }, []);
+
+    // Smoothly scroll the window context view back to top
+    const scrollToTop = () => {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth',
+        });
+    };
+
     // Data array for the 6 columns of links
     const footerColumns = [
         {
@@ -30,7 +58,7 @@ const Footer = () => {
     const utilityLinks = ["ABOUT US", "CUSTOMER SERVICE", "PRIVACY POLICY", "SITE MAP", "ORDERS AND RETURNS", "CONTACT US"];
 
     return (
-        <footer className="w-full bg-[#f9fafb] font-sans pt-12 border-t border-gray-200" >
+        <footer className="w-full bg-[#f9fafb] font-sans pt-12 border-t border-gray-200 relative">
             <div className="max-w-[1440px] mx-auto w-full box-border" style={{ paddingLeft: '40px', paddingRight: '40px', paddingTop: '20px', paddingBottom: '20px' }}>
                 
                 {/* --- 1. TOP SECTION: 6-Column Links Grid --- */}
@@ -57,20 +85,19 @@ const Footer = () => {
                 <div className="flex flex-col items-center py-8 text-center" style={{ paddingTop: '20px', paddingBottom: '40px' }}>
                     
                     {/* Trust Badges */}
-                    {/* Trust Badges */}
-                <div className="flex items-center justify-center mb-6">
-                    <img 
-                        src="https://ss-etrostores.myshopify.com/cdn/shop/files/icon-security_024eeb15-f2cf-4d48-a6e0-04ad4b8b825f.png?v=1613701216" 
-                        alt="Security Badges" 
-                        className="h-8 object-contain opacity-80" 
-                    />
-                </div>
+                    <div className="flex items-center justify-center mb-6">
+                        <img 
+                            src="https://ss-etrostores.myshopify.com/cdn/shop/files/icon-security_024eeb15-f2cf-4d48-a6e0-04ad4b8b825f.png?v=1613701216" 
+                            alt="Security Badges" 
+                            className="h-8 object-contain opacity-80" 
+                        />
+                    </div>
 
-                    {/* Utility Links (FIXED: Removed React.Fragment to prevent compiler crashes) */}
+                    {/* Utility Links */}
                     <div className="flex flex-wrap items-center justify-center gap-2 mb-6 text-[12px] font-bold text-[#333] uppercase"  style={{ paddingTop: '20px', paddingBottom: '20px' }}>
                         {utilityLinks.map((link, idx) => (
                             <span key={idx} className="flex items-center">
-                                <a href="#" className="h    over:text-[#ff5a33] transition-colors">{link}</a>
+                                <a href="#" className="hover:text-[#ff5a33] transition-colors">{link}</a>
                                 {idx !== utilityLinks.length - 1 && <span className="text-gray-300 pl-3 pr-1" style={{paddingLeft: '10px'}}>|</span>}
                             </span>
                         ))}
@@ -78,7 +105,7 @@ const Footer = () => {
 
                     {/* Disclaimer Text */}
                     <p className="text-gray-500 text-[12px] max-w-4xl leading-relaxed mb-6">
-                        **$50 off orders $350+ with the code BOO50. $75 off orders $500+ with the code BOO75. $150 off orders $1000+ with the code BOO150. Valid from October 28, 2015 to October 31, 2018. Offer may not be combined with any other offers or promotions, is non-exchangeable and non-refundable. Offer valid within the US only.
+                        $50 off orders $350+ with the code BOO50. $75 off orders $500+ with the code BOO75. $150 off orders $1000+ with the code BOO150. Valid from October 28, 2015 to October 31, 2018. Offer may not be combined with any other offers or promotions, is non-exchangeable and non-refundable. Offer valid within the US only.
                     </p>
 
                     {/* Payment Methods */}
@@ -100,6 +127,24 @@ const Footer = () => {
                         Etrostore © 2017 Demo Store. All Rights Reserved. Designed by <span className="text-[#ff5a33] cursor-pointer hover:underline">MagenTech.com</span>
                     </p>
                 </div>
+            </div>
+
+            {/* --- 4. FLOATING BACK TO TOP BUTTON SECTION --- */}
+            <div className="fixed bottom-6 right-6 z-[250]">
+                <button
+                    type="button"
+                    onClick={scrollToTop}
+                    className={`
+                        flex items-center justify-center h-10 w-10
+                        bg-[#1c2e3a] hover:bg-[#ff5a33] text-white 
+                        shadow-md rounded-xs transition-all duration-300 ease-in-out
+                        focus:outline-none transform hover:-translate-y-1 text-lg
+                        ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-75 pointer-events-none'}
+                    `}
+                    title="Scroll to top"
+                >
+                    <FiChevronUp />
+                </button>
             </div>
         </footer>
     );

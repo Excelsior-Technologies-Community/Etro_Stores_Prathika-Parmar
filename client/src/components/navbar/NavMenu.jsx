@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { IoIosArrowDown } from 'react-icons/io';
 import { FiMenu } from 'react-icons/fi';
+import { Link } from 'react-router-dom';
 
 const NavMenu = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -185,9 +186,20 @@ const NavMenu = () => {
                             
                             <div className="lg:absolute left-0 top-full w-full lg:w-48 bg-white text-[#333] shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-[100] hidden lg:block" style={{ borderTop: '2px solid #ff5a33' }}>
                                 <ul style={{ padding: '8px 0', margin: 0 }}>
-                                    {['About Us', 'Contact Us', 'Lookbook', 'Faqs'].map((page) => (
-                                        <li key={page} className="px-5 py-2 hover:text-[#ff5a33] cursor-pointer transition-colors text-[12px] font-medium border-b border-gray-100 last:border-none">
-                                            {page}
+                                    {[
+                                        { path: '/about', name: 'About Us' }, 
+                                        { path: '/contact', name: 'Contact Us' }, 
+                                        { path: '/lookbook', name: 'Lookbook' }, 
+                                        { path: '/faqs', name: 'Faqs' }
+                                    ].map((page) => (
+                                        <li key={page.path} className="border-b border-gray-100 last:border-none">
+                                            {/* Changed item wrapper here to Router Link */}
+                                            <Link 
+                                                to={page.path} 
+                                                className="block px-5 py-2 hover:text-[#ff5a33] text-[12px] font-medium transition-colors text-gray-700"
+                                            >
+                                                {page.name}
+                                            </Link>
                                         </li>
                                     ))}
                                 </ul>
