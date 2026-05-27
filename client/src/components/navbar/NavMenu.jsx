@@ -185,12 +185,13 @@ const NavMenu = () => {
                             </div>
                             
                             <div className="lg:absolute left-0 top-full w-full lg:w-48 bg-white text-[#333] shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 z-[100] hidden lg:block" style={{ borderTop: '2px solid #ff5a33' }}>
-                                <ul style={{ padding: '8px 0', margin: 0 }}>
+                                <ul style={{ padding: '8px', margin: 0 }}>
                                     {[
                                         { path: '/about', name: 'About Us' }, 
                                         { path: '/contact', name: 'Contact Us' }, 
                                         { path: '/lookbook', name: 'Lookbook' }, 
-                                        { path: '/faqs', name: 'Faqs' }
+                                        { path: '/faqs', name: 'Faqs' },
+                                        { path: '/pricing', name: 'Pricing' }
                                     ].map((page) => (
                                         <li key={page.path} className="border-b border-gray-100 last:border-none">
                                             {/* Changed item wrapper here to Router Link */}
