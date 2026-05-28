@@ -156,11 +156,17 @@ const NavMenu = () => {
                         </li>
 
                         {/* 4. Standard Links */}
-                        {['Furnicom', 'Fresh Fruit', 'Accessories'].map((item) => (
-                            <li key={item} className="relative group flex items-center h-14">
-                                <a href="#" className="text-white text-[13px] font-bold uppercase transition-colors hover:text-[#ff5a33]">
-                                    {item}
-                                </a>
+                        {[
+                            { path: '/furnicom', name: 'Furnicom'},
+                            { path: '/fresh fruit', name: 'Fresh Fruit'},
+                            { path: '/accessories', name: 'Accessories'}
+                        ].map((item) => (
+                            <li key={item.path} className="relative group flex items-center h-14">
+                               <Link to={item.path}
+                               className='text-white text-[13px] font-bold uppercase transition-colors hover:text-[#ff5a33]'>
+                               
+                               {item.name}
+                               </Link>
                             </li>
                         ))}
 

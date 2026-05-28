@@ -6,6 +6,8 @@ import Conatct from './pages/Contact';
 import LookBook from './pages/LookBook';
 import FAQ from './pages/FAQ';
 import Pricing from './pages/Pricing';
+import Collections from './pages/Collections';
+import FreshFruits from './pages/FreshFruits';
 
 function App() {
   return (
@@ -17,6 +19,8 @@ function App() {
         <Route path="/lookbook" element={<LookBook />} />
         <Route path="/faqs" element={<FAQ />} />
         <Route path="/pricing" element={<Pricing />} />
+        <Route path="/accessories" element={<Collections />} />
+        <Route path="/fresh fruit" element={< FreshFruits/>} />
       </Routes>
 
     </Router>
