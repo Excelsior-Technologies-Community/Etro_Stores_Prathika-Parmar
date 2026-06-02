@@ -130,23 +130,23 @@ const NavMenu = () => {
                                 </div>
 
                                 {/* BOTTOM ROW: 2 Promotional Banners */}
-                                <div className="grid grid-cols-2 gap-6">
+                                <div className="grid grid-cols-2 gap-6" style={{paddingTop:'10px'}}>
                                     <div className="relative h-[200px] bg-[#43c6e2] rounded-sm overflow-hidden flex flex-col justify-center p-8 cursor-pointer group/banner">
                                         <div className="absolute right-[-20px] top-4 w-40 h-40 bg-white/20 rounded-md rotate-12 group-hover/banner:rotate-6 transition-transform duration-500"></div>
-                                        <div className="relative z-10 text-white">
+                                        <div className="relative z-10 text-white" style={{padding: '100px'}}>
                                             <h2 className="text-4xl font-serif italic mb-1">Color E!</h2>
                                             <p className="text-[10px] tracking-[0.2em] uppercase mb-4 opacity-90">We Are Shining</p>
-                                            <button className="bg-white text-gray-800 text-[12px] font-bold px-6 py-2 rounded-sm hover:bg-gray-100 transition-colors shadow-sm">
+                                            <button className="bg-white text-gray-800 text-[12px] font-bold px-6 py-2 rounded-sm hover:bg-gray-100 transition-colors shadow-sm" style={{padding:'2px'}}>
                                                 Shop Now
                                             </button>
                                         </div>
                                     </div>
                                     <div className="relative h-[200px] bg-[#f4f2ec] rounded-sm overflow-hidden flex flex-col justify-center p-8 cursor-pointer group/banner">
                                         <div className="absolute right-0 top-0 w-48 h-full bg-gradient-to-l from-red-400/20 to-transparent group-hover/banner:scale-105 transition-transform duration-500"></div>
-                                        <div className="relative z-10 text-[#333]">
+                                        <div className="relative z-10 text-[#333]" style={{padding: '100px'}}>
                                             <h2 className="text-2xl font-extrabold mb-1 max-w-[200px] leading-tight">Trend With The MultiPad</h2>
                                             <p className="text-[10px] tracking-[0.2em] uppercase mb-4 text-gray-500">We Are Shining</p>
-                                            <button className="bg-[#ff5a33] text-white text-[12px] font-bold px-6 py-2 rounded-sm hover:bg-[#e64d29] transition-colors shadow-sm">
+                                            <button className="bg-[#ff5a33] text-white text-[12px] font-bold px-6 py-2 rounded-sm hover:bg-[#e64d29] transition-colors shadow-sm" style={{padding:'2px'}}>
                                                 Shop Now
                                             </button>
                                         </div>

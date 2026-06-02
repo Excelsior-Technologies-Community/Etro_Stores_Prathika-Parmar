@@ -8,6 +8,7 @@ import FAQ from './pages/FAQ';
 import Pricing from './pages/Pricing';
 import Collections from './pages/Collections';
 import FreshFruits from './pages/FreshFruits';
+import Furnicom from './pages/Furnicom';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
         <Route path="/pricing" element={<Pricing />} />
         <Route path="/accessories" element={<Collections />} />
         <Route path="/fresh fruit" element={< FreshFruits/>} />
+        <Route path="/furnicom" element={< Furnicom/>} />
       </Routes>
 
     </Router>
