@@ -26,6 +26,15 @@ const Hero = () => {
         }
     ];
 
+    const tabs = [
+        { label: 'TOP DEALS', path: '/top-deals' },
+        { label: 'BEST SELLING', path: '/best-selling' },
+        { label: 'CATEGORIES', path: '/categories' },
+        { label: 'RECOMMENDED', path: '/recommended' },
+        { label: 'TOP BRANDS', path: '/top-brands' },
+        { label: 'NEW PRODUCTS', path: '/new-products' }
+    ];
+
     useEffect(() => {
         const timer = setInterval(() => {
             setCurrentSlide((prev) => (prev === slides.length - 1 ? 0 : prev + 1));
@@ -44,15 +53,31 @@ const Hero = () => {
                     className="flex w-full bg-white border border-gray-200 rounded-sm shadow-sm"
                     style={{ marginTop: '10px', marginBottom: '10px', paddingTop: '0px', paddingBottom: '10px' }}
                 >
-                    {['TOP DEALS', 'BEST SELLING', 'CATEGORIES', 'RECOMMENDED', 'TOP BRANDS', 'NEW PRODUCTS'].map((item, index) => (
-                        <div 
-                            key={index} 
-                            className={`flex-1 text-center py-4 text-[13px] font-bold text-[#333] cursor-pointer hover:text-[#ff5a33] border-r border-gray-100 last:border-none relative transition-colors`}
-                            style={{ borderTop: index === 0 ? '2px solid #ff5a33' : '2px solid transparent' }}
-                        >
-                            {item}
-                            {index === 0 && <span className="ml-1 text-[10px] text-[#ff5a33]">▼</span>}
-                        </div>
+                    {[
+                        {path: '/top-deals', label: 'TOP DEALS'},
+                        {path: '/best-selling', label: 'BEST SELLING'},
+                        {path: '/categories', label: 'CATEGORIES'},
+                        {path: '/recommended', label: 'RECOMMENDED'},
+                        {path: '/top-brands', label: 'TOP BRANDS'},
+                        {path: '/new-products', label: 'NEW PRODUCTS'}
+                    ].map((item) => (
+                        <li 
+                            key={item.path} 
+                            className={`flex-1 text-center py-4 text-[13px] font-bold text-[#333] cursor-pointer hover:text-[#ff5a33] border-r border-gray-100 last:border-none relative transition-colors`}>
+
+                                <Link to={item.path} 
+                                className="absolute z-10" >
+
+                                {item.label}
+
+                                </Link>
+                            </li>
+
+                    
+                            
+        
+
+                        
                     ))}
                 </div>
 

@@ -159,7 +159,8 @@ const NavMenu = () => {
                         {[
                             { path: '/furnicom', name: 'Furnicom'},
                             { path: '/fresh fruit', name: 'Fresh Fruit'},
-                            { path: '/accessories', name: 'Accessories'}
+                            { path: '/accessories', name: 'Accessories'},
+                            { path: '/blogs', name: 'Blogs'}
                         ].map((item) => (
                             <li key={item.path} className="relative group flex items-center h-14">
                                <Link to={item.path}

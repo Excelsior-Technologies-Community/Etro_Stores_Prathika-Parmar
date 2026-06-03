@@ -9,6 +9,9 @@ import Pricing from './pages/Pricing';
 import Collections from './pages/Collections';
 import FreshFruits from './pages/FreshFruits';
 import Furnicom from './pages/Furnicom';
+import Blog from './pages/Blog';
+import TopDeals from './pages/TopDeals';
+import Category from './pages/Category';
 
 function App() {
   return (
@@ -23,6 +26,9 @@ function App() {
         <Route path="/accessories" element={<Collections />} />
         <Route path="/fresh fruit" element={< FreshFruits/>} />
         <Route path="/furnicom" element={< Furnicom/>} />
+        <Route path="/blogs" element={<Blog/>} />
+        <Route path="/top-deals" element={<TopDeals/>} />
+        <Route path="/categories" element={<Category/>} />
       </Routes>
 
     </Router>
