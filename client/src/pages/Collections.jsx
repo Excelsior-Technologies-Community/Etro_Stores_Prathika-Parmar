@@ -34,6 +34,67 @@ const Collections = () => {
         { id: 16, name: 'CyberpowerPC Gamer', price: 355.00, oldPrice: 358.00, discount: '-1%', category: 'Hitech', color: '#black', image: 'https://ss-etrostores.myshopify.com/cdn/shop/products/4_96da3d8c-1d2a-4fbb-af46-15e09a58067e_345x345.jpg?v=1571713027', desc: 'Curabitur egestas malesuada volutpat.' },
     ];
 
+    const handleAddToCart = async (product) => {
+        try{
+        // 1. FIXED: Changed https: to http://
+        const response = await fetch('http://localhost:5000/api/cart/add',{
+            method: 'POST',
+            headers: {
+                // 2. FIXED: Changed josn to json
+                "Content-Type" : 'application/json',
+            },
+            // 3. FIXED: Changed bosy to body
+            body: JSON.stringify({
+                userId: 1,
+                productId: product.id,
+                name: product.name,
+                price: product.price,
+                image: product.image
+            })
+        });
+
+        const data = await response.json();
+            
+            if (response.ok) {
+                alert(`Success: ${product.name} added to your cart!`);
+            } else {
+                alert(`Error: ${data.error}`);
+            }
+        }catch (error) {
+            console.error("Failed to connect to backend:", error);
+            alert("Could not connect to the server. Is your Node.js backend running?");
+        }
+    };
+
+    const handleAddToWishlist = async (product) => {
+        try {
+            const response = await fetch('http://localhost:5000/api/wishlist/add', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    userId: 1, // Hardcoded user ID for now
+                    productId: product.id,
+                    name: product.name,
+                    price: product.price,
+                    image: product.image
+                })
+            });
+
+            const data = await response.json();
+            
+            if (response.ok) {
+                alert(`Success: ${product.name} added to your wishlist!`);
+            } else {
+                alert(`Error: ${data.error}`);
+            }
+        } catch (error) {
+            console.error("Failed to connect to backend:", error);
+            alert("Could not connect to the server. Is your Node.js backend running?");
+        }
+    };
+
     const toggleCategoryDropdown = (catName) => {
         setOpenCategory(openCategory === catName ? '' : catName)
     };
@@ -224,9 +285,18 @@ const Collections = () => {
                                         <div className="w-full h-[220px] bg-white p-4 relative overflow-hidden flex items-center justify-center">
                                             <img src={product.image} alt={product.name} className="max-w-full max-h-full object-contain transform transition-transform duration-500 group-hover:scale-105" />
                                             <div className="absolute right-[-50px] group-hover:right-3 top-1/2 transform -translate-y-1/2 flex flex-col gap-2 transition-all duration-300 opacity-0 group-hover:opacity-100">
-                                                <button className="w-9 h-9 bg-white border border-gray-200 rounded-xs flex items-center justify-center shadow-xs text-gray-600 hover:bg-[#ff5a33] hover:text-white transition-colors"><FiShoppingCart /></button>
-                                                <button className="w-9 h-9 bg-white border border-gray-200 rounded-xs flex items-center justify-center shadow-xs text-gray-600 hover:bg-[#ff5a33] hover:text-white transition-colors"><FiHeart /></button>
-                                                <button className="w-9 h-9 bg-white border border-gray-200 rounded-xs flex items-center justify-center shadow-xs text-gray-600 hover:bg-[#ff5a33] hover:text-white transition-colors"><FiSearch /></button>
+                                                <button 
+                                                    onClick={(e) => { e.stopPropagation(); handleAddToCart(product); }}
+                                                    className="w-9 h-9 bg-white border border-gray-200 rounded-xs flex items-center justify-center shadow-xs text-gray-600 hover:bg-[#ff5a33] hover:text-white transition-colors"
+                                                >
+                                                    <FiShoppingCart />
+                                                </button>
+                                                <button 
+                                                    onClick={(e) => { e.stopPropagation(); handleAddToWishlist(product); }}
+                                                    className="w-9 h-9 bg-white border border-gray-200 rounded-xs flex items-center justify-center shadow-xs text-gray-600 hover:bg-[#ff5a33] hover:text-white transition-colors"
+                                                >
+                                                    <FiHeart />
+                                                </button>                                                <button className="w-9 h-9 bg-white border border-gray-200 rounded-xs flex items-center justify-center shadow-xs text-gray-600 hover:bg-[#ff5a33] hover:text-white transition-colors"><FiSearch /></button>
                                             </div>
                                         </div>
                                         <div className="p-4 bg-[#ffffff] border-t border-gray-50 flex-1 flex flex-col justify-between" style={{padding: '10px'}}>
@@ -258,9 +328,13 @@ const Collections = () => {
                                             </div>
                                             <p className="text-[13px] text-grey-400 font-light leading-relaxed max-w-2xl" style={{paddingBottom: '5px'}}>{product.desc}</p>
                                             <div className="pt-2">
-                                                <button className="bg-[#ff5a33] text-white text-[12px] uppercase font-bold px-6 py-2.5 rounded-xs hover:bg-[#1c2e3a] transition-colors tracking-wider flex items-center gap-2" style={{padding: '5px'}}>
-                                                    <FiShoppingCart /> Add To Cart
-                                                </button>
+                                                <button 
+                                                                                                    onClick={(e) => { e.stopPropagation(); handleAddToCart(product); }}
+                                                                                                    className="bg-[#ff5a33] text-white text-[12px] uppercase font-bold px-6 py-2.5 rounded-xs hover:bg-[#1c2e3a] transition-colors tracking-wider flex items-center gap-2" style={{padding: '5px'}}
+                                                                                                >
+                                                                                                    <FiShoppingCart /> Add To Cart
+                                                                                                </button>
+                                                                                                
                                             </div>
                                         </div>
                                     </div>

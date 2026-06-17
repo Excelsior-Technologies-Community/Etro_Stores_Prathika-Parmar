@@ -1,9 +1,26 @@
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import { useNavigate } from "react-router-dom";
 import { FiShoppingBag, FiUser } from "react-icons/fi";
 import { FaRobot } from "react-icons/fa";
 
 const MidHeader = () => {
+
+    const[cartCount, setCartCount] = useState(0);
+
+    useEffect(() => {
+        const fetchCartCount = async () => {
+            try{
+                const response = await fetch('http://localhost:5000/api/cart/1');
+                const data = await response.json();
+
+                setCartCount(data.length);
+            }catch(error){
+                console.error("failed to fetch cart items ", error);
+            }
+        };
+        fetchCartCount();
+    }, []);
+
     const [searchQuery, setSearchQuery] = useState("");  //This creates a memory variable called searchQuery. Whenever you type in the search bar, this variable updates in real-time to store your text.
     const navigate = useNavigate(); //This is from react-router-dom. It allows React to change the page URL instantly without causing the browser to reload.
 
@@ -78,10 +95,12 @@ const MidHeader = () => {
                 <div className="flex items-center gap-6">
                     
                     {/* Cart Icon */}
-                    <div className="relative cursor-pointer flex items-center group">
+                    <div className="relative cursor-pointer flex items-center group" onClick={() => navigate('/cart')} role="button" tabIndex={0}>
                         <FiShoppingBag className="text-white text-3xl group-hover:text-[#ff5a33] transition-colors" />
+    
+                        {/* Notice we replaced 0 with {cartCount} */}
                         <span className="absolute -top-2 -right-2 bg-[#ff5a33] text-white text-[11px] font-bold h-5 w-5 rounded-full flex items-center justify-center shadow-md">
-                            0
+                            {cartCount}
                         </span>
                     </div>
 

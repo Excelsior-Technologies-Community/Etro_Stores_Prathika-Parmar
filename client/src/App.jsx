@@ -12,6 +12,11 @@ import Furnicom from './pages/Furnicom';
 import Blog from './pages/Blog';
 import TopDeals from './pages/TopDeals';
 import Category from './pages/Category';
+import BestSelling from './pages/BestSelling';
+import Recom from './pages/Recom';
+import TopBrands from './pages/TopProducts';
+import WishlistPage from './pages/wishlistpage';
+import CartPage from './pages/cartpage';
 
 function App() {
   return (
@@ -28,7 +33,14 @@ function App() {
         <Route path="/furnicom" element={< Furnicom/>} />
         <Route path="/blogs" element={<Blog/>} />
         <Route path="/top-deals" element={<TopDeals/>} />
-        <Route path="/categories" element={<Category/>} />
+        <Route path="/best-selling" element={<BestSelling/>} />
+        <Route path="/recommended" element={<Recom/>} />
+        <Route path="/top-brands" element={<TopBrands/>} />
+        <Route path="/wishlist" element={<WishlistPage/>} />
+        <Route path="/cart" element={<CartPage/>} />
+
+
+        
       </Routes>
 
     </Router>
