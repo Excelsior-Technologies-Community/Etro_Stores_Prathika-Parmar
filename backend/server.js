@@ -11,10 +11,12 @@ app.use(express.json());
 // Import Routes
 const cartRoutes = require('./routes/cartRoutes');
 const wishlistRoutes = require('./routes/wishlistRoutes');
+const productRoutes = require('./routes/productRoutes');
 
 // Use Routes
 app.use('/api/cart', cartRoutes);
 app.use('/api/wishlist', wishlistRoutes);
+app.use('/api/products', productRoutes);
 
 // Start Server
 const PORT = 5000;

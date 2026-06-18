@@ -18,6 +18,13 @@ const CartModel = {
         db.query(query, [userId], (err, result) => {
             callBack(err, result);
         });
+    },
+
+    removeItem: (cartItemId, callBack) => {
+        const query = "DELETE FROM cart WHERE id = ?";
+        db.query(query, [cartItemId], (err, result) => {
+            callBack(err, result);
+        });
     }
 };
 

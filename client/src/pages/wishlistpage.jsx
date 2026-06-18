@@ -22,6 +22,25 @@ const WishlistPage = () => {
         fetchWishlist();
     }, []);
 
+    // --- NEW: Remove Item Function ---
+    const handleRemoveItem = async (itemId) => {
+        try {
+            // 1. Tell MySQL to delete it
+            const response = await fetch(`http://localhost:5000/api/wishlist/remove/${itemId}`, {
+                method: 'DELETE',
+            });
+
+            if (response.ok) {
+                // 2. Erase it from the screen instantly without a refresh
+                setWishlistItems((prevItems) => prevItems.filter(item => item.id !== itemId));
+            } else {
+                alert("Failed to remove item.");
+            }
+        } catch (error) {
+            console.error("Error removing item:", error);
+        }
+    };
+
     return (
         <div className="w-full min-h-screen bg-white font-sans text-[#444444] flex flex-col">
             <Header />
@@ -48,11 +67,23 @@ const WishlistPage = () => {
                                 <h3 className="text-[14px] font-bold text-gray-700 truncate" style={{paddingLeft: '10px'}}>{item.product_name}</h3>
                                 <p className="text-[#ff5a33] font-extrabold text-[15px] mt-1" style={{paddingLeft: '10px'}}>${Number(item.price).toFixed(2)}</p>
                                 
-                                {/* Quick Action Buttons */}
+                                {/* Action Buttons */}
                                 <div className="flex gap-2 mt-4 pt-4 border-t border-gray-50" style={{paddingTop: ' 10px'}}>
+                                    
+                                    {/* Add to Cart Button */}
                                     <button className="flex-1 bg-[#ff5a33] text-white text-[12px] uppercase font-bold py-2 rounded-xs hover:bg-[#1c2e3a] transition-colors flex items-center justify-center gap-2" style={{padding: '5px'}}>
                                         <FiShoppingCart /> Add to Cart
                                     </button>
+
+                                    {/* NEW: Remove from Wishlist Button */}
+                                    <button 
+                                        onClick={() => handleRemoveItem(item.id)}
+                                        className="w-10 h-10 border border-gray-200 text-gray-400 hover:text-red-500 hover:border-red-500 rounded-xs flex items-center justify-center transition-colors shadow-sm"
+                                        title="Remove from Wishlist"
+                                    >
+                                        <FiTrash2 className="text-[16px]" />
+                                    </button>
+
                                 </div>
                             </div>
                         ))}

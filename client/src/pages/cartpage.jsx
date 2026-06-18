@@ -22,6 +22,25 @@ const CartPage = () => {
         fetchCart();
     }, []);
 
+    // --- NEW: Remove Item Function ---
+    const handleRemoveItem = async (itemId) => {
+        try {
+            // 1. Tell the backend to delete the item from MySQL
+            const response = await fetch(`http://localhost:5000/api/cart/remove/${itemId}`, {
+                method: 'DELETE',
+            });
+
+            if (response.ok) {
+                // 2. Instantly remove it from the screen without refreshing
+                setCartItems((prevItems) => prevItems.filter(item => item.id !== itemId));
+            } else {
+                alert("Failed to remove item.");
+            }
+        } catch (error) {
+            console.error("Error removing item:", error);
+        }
+    };
+
     // Calculate total price of all items in the cart
     const calculateTotal = () => {
         return cartItems.reduce((total, item) => total + (Number(item.price) * item.quantity), 0).toFixed(2);
@@ -51,7 +70,7 @@ const CartPage = () => {
                     ) : (
                         <div className="space-y-4">
                             {cartItems.map((item) => (
-                                <div key={item.id} className="flex items-center gap-4 border border-gray-100 p-4 rounded-xs shadow-xs bg-white">
+                                <div key={item.id} className="flex items-center gap-4 border border-gray-100 p-4 rounded-xs shadow-xs bg-white hover:shadow-md transition-shadow">
                                     <div className="w-24 h-24 border border-gray-50 p-2 flex items-center justify-center flex-shrink-0">
                                         <img src={item.image} alt={item.product_name} className="max-w-full max-h-full object-contain" />
                                     </div>
@@ -61,8 +80,16 @@ const CartPage = () => {
                                         <p className="text-gray-500 text-[13px] mt-1">Quantity: {item.quantity}</p>
                                     </div>
 
-                                    <div className="text-right">
+                                    <div className="text-right flex flex-col items-end justify-between h-full">
                                         <p className="text-[#ff5a33] font-extrabold text-[16px]">${Number(item.price).toFixed(2)}</p>
+                                        
+                                        {/* NEW: Remove Button */}
+                                        <button 
+                                            onClick={() => handleRemoveItem(item.id)}
+                                            className="mt-3 flex items-center gap-1 text-[12px] font-bold text-gray-400 hover:text-red-500 transition-colors"
+                                        >
+                                            <FiTrash2 className="text-[14px]" /> Remove
+                                        </button>
                                     </div>
                                 </div>
                             ))}
