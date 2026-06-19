@@ -50,7 +50,7 @@ const CartPage = () => {
         <div className="w-full min-h-screen bg-white font-sans text-[#444444] flex flex-col">
             <Header />
 
-            <main className="flex-1 max-w-[1200px] mx-auto w-full px-6 py-12 flex flex-col lg:flex-row gap-10">
+            <main className="flex-1 max-w-[1200px] mx-auto w-full px-6 py-12 flex flex-col lg:flex-row gap-10" style={{padding: '20px'}}>
                 
                 {/* Left Side: Cart Items */}
                 <div className="flex-1">
@@ -130,7 +130,7 @@ const CartPage = () => {
 
             </main>
 
-            <Footer />
+            
         </div>
     );
 };

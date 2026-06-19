@@ -45,7 +45,7 @@ const WishlistPage = () => {
         <div className="w-full min-h-screen bg-white font-sans text-[#444444] flex flex-col">
             <Header />
 
-            <main className="flex-1 max-w-[1200px] mx-auto w-full px-6 py-12">
+            <main className="flex-1 max-w-[1200px] mx-auto w-full px-6 py-12" style={{padding: '20px'}}>
                 <h1 className="text-2xl font-bold text-[#222222] border-b border-gray-200 pb-4 mb-8 uppercase tracking-wider" style={{padding: '20px'}}>
                     My Wishlist
                 </h1>
@@ -91,7 +91,7 @@ const WishlistPage = () => {
                 )}
             </main>
 
-            <Footer />
+            
         </div>
     );
 };

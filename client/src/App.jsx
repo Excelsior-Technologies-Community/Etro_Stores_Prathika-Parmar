@@ -17,6 +17,9 @@ import Recom from './pages/Recom';
 import TopBrands from './pages/TopProducts';
 import WishlistPage from './pages/wishlistpage';
 import CartPage from './pages/cartpage';
+import RegisterPage from './pages/RegisterPage';
+import LoginPage from './pages/LoginPage';
+import AdminDashboard from './pages/adminDashboard';
 
 function App() {
   return (
@@ -39,6 +42,9 @@ function App() {
         <Route path="/wishlist" element={<WishlistPage/>} />
         <Route path="/cart" element={<CartPage/>} />
 
+        <Route path="/register" element={<RegisterPage/>} />
+        <Route path="/login" element={<LoginPage/>} />
+        <Route path="/admindashboard" element={<AdminDashboard />} />
 
         
       </Routes>

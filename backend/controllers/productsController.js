@@ -1,23 +1,39 @@
-const db = require('../config/db');
+const ProductModel = require('../models/productModel');
 
-const searchProducts = (req, res) => {
-    // Grab the search word from the URL (e.g., ?q=television)
-    const searchQuery = req.query.q; 
+const productController = {
     
-    // If the box is empty, send back an empty array
-    if (!searchQuery) return res.status(200).json([]);
+    // 1. Get all products
+    getProducts: (req, res) => {
+        ProductModel.getAll((err, results) => {
+            if (err) return res.status(500).json({ error: "Database error" });
+            res.status(200).json(results);
+        });
+    },
 
-    // The % symbols mean "find this word anywhere in the product name"
-    const sql = `SELECT * FROM products WHERE name LIKE ? LIMIT 5`;
-    const value = [`%${searchQuery}%`];
+    // 2. Add a new product
+    createProduct: (req, res) => {
+        const { name, price, category, image, desc } = req.body;
+        ProductModel.addProduct(name, price, category, image, desc, (err, result) => {
+            if (err) return res.status(500).json({ error: "Failed to add product" });
+            res.status(201).json({ message: "Product added successfully!" });
+        });
+    },
 
-    db.query(sql, value, (err, results) => {
-        if (err) {
-            console.error('Search error:', err);
-            return res.status(500).json({ error: 'Database error' });
-        }
-        res.status(200).json(results);
-    });
+    // 3. NEW: Search Products
+    searchProducts: (req, res) => {
+        const searchQuery = req.query.q; 
+        
+        // Early exit if the search box is empty
+        if (!searchQuery) return res.status(200).json([]);
+
+        ProductModel.search(searchQuery, (err, results) => {
+            if (err) {
+                console.error('Search error:', err);
+                return res.status(500).json({ error: 'Database error' });
+            }
+            res.status(200).json(results);
+        });
+    }
 };
 
-module.exports = { searchProducts };
+module.exports = productController;

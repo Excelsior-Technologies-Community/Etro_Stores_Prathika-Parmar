@@ -16,7 +16,7 @@ const Furnicom = () => {
     const products = [
         { id: 1, name: 'Lacinia Rhoncus', price: 239.00, oldPrice: 299.00, discount: '-20%', badge: 'Best', category: 'Sofa', color: '#black', image: 'https://tse4.mm.bing.net/th/id/OIP.osxfezmX5bCpcepS1BWY4wHaHa?pid=Api&P=0&h=180', desc: 'Bingo Fabric 3 Seater Sofa In Grey Colour' },
         { id: 2, name: 'Viverra Nec Purus', price: 123.90, oldPrice: 275.47, discount: '-55%', badge: 'New', category: 'Sofa', color: '#6b3232', image: 'https://ii1.pepperfry.com/media/catalog/product/e/m/494x544/emperor-synthetic-leather-1-seater-sofa-in-toffee-colour-emperor-synthetic-leather-1-seater-sofa-in--lsthyd.jpg', desc: 'Emperor Synthetic Leather 1 Seater Sofa in Toffee Colour' },
-        { id: 3, name: 'Officia Picanha', price: 214.90, oldPrice: 466.44, discount: '-54%', badge: 'New', category: 'Sofa', color: '#6b3232', image: 'https://ii1.pepperfry.com/media/catalog/product/e/m/494x544/emperor-synthetic-leather-3-seater-sofa-in-toffee-colour-emperor-synthetic-leather-3-seater-sofa-in--hlaoyp.jpg', desc: 'Emperor Synthetic Leather 3 Seater Sofa in Toffee Colour' }, // FIXED: Typo 'SOfa' -> 'Sofa'
+        { id: 3, name: 'Officia Picanha', price: 214.90, oldPrice: 466.44, discount: '-54%', badge: 'New', category: 'Sofa', color: '#6b3232', image: 'https://ii1.pepperfry.com/media/catalog/product/e/m/494x544/emperor-synthetic-leather-3-seater-sofa-in-toffee-colour-emperor-synthetic-leather-3-seater-sofa-in--hlaoyp.jpg', desc: 'Emperor Synthetic Leather 3 Seater Sofa in Toffee Colour' },
         { id: 4, name: 'Porchetta Ribsbee', price: 128.24, oldPrice: 179.99, discount: '-29%', badge: 'Best', category: 'Sofa', color: '#5e5d5d', image: 'https://ii1.pepperfry.com/media/catalog/product/k/i/494x544/kiki-fabric-2-seater-sofa-in-graphite-grey-colour-kiki-fabric-2-seater-sofa-in-graphite-grey-colour-fr5zai.jpg', desc: 'Kiki Fabric 2 Seater Sofa in Graphite Grey Colour' },
         { id: 5, name: 'Nonelit Estbacon', price: 359.99, oldPrice: 509.99, discount: '-29%', badge: 'New', category: 'Chair', color: '#6b3232', image: 'https://ii1.pepperfry.com/media/catalog/product/p/e/494x544/peshtigo-sheesham-wood-arm-chair-in-honey-oak-finish-peshtigo-sheesham-wood-arm-chair-in-honey-oak-f-hxwuvw.jpg', desc: 'Wegner Fabric Armchair in Exotic Teak & Smoked Olive Colour' },
         { id: 6, name: 'Rosciutto Frankfur', price: 124.99, oldPrice: 169.99,  discount: '-26%', category: 'Chair', color: '#fff', image: 'https://ii1.pepperfry.com/media/catalog/product/a/s/494x544/asko-leatheratte-arm-chair-off-white-colour-and-brass-antiq-finish-asko-leatheratte-arm-chair-off-wh-8o0ve5.jpg', desc: 'Asko Leatheratte Arm Chair in Beige Colour' },
@@ -31,6 +31,56 @@ const Furnicom = () => {
         { id: 15, name: 'Acer Aspire AIO', price: 414.99, oldPrice: 500.00, discount: '-28%', category: 'Table', color: '#fff', image: 'https://ii1.pepperfry.com/media/catalog/product/m/i/494x544/minimalist-marble-top-coffee-table-in-gold-colour-minimalist-marble-top-coffee-table-in-gold-colour-cy5txn.jpg', desc: 'Minimalist Marble Top Coffee Table In Gold Colour' },
     ];
 
+    // --- FULL-STACK API CONTROLS ---
+    const handleAddToCart = async (product) => {
+        try {
+            const response = await fetch('http://localhost:5000/api/cart/add', {
+                method: 'POST',
+                headers: { "Content-Type": 'application/json' },
+                body: JSON.stringify({
+                    userId: 1, 
+                    productId: product.id,
+                    name: product.name,
+                    price: product.price,
+                    image: product.image
+                })
+            });
+            const data = await response.json();
+            if (response.ok) {
+                alert(`Success: ${product.name} added to your cart!`);
+            } else {
+                alert(`Error: ${data.error}`);
+            }
+        } catch (error) {
+            console.error("Failed to connect to backend:", error);
+            alert("Could not connect to the server. Is your Node.js backend running?");
+        }
+    };
+
+    const handleAddToWishlist = async (product) => {
+        try {
+            const response = await fetch('http://localhost:5000/api/wishlist/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    userId: 1, 
+                    productId: product.id,
+                    name: product.name,
+                    price: product.price,
+                    image: product.image
+                })
+            });
+            const data = await response.json();
+            if (response.ok) {
+                alert(`Success: ${product.name} added to your wishlist!`);
+            } else {
+                alert(`Error: ${data.error}`);
+            }
+        } catch (error) {
+            console.error("Failed to connect to backend:", error);
+            alert("Could not connect to the server. Is your Node.js backend running?");
+        }
+    };
     
     const toggleCategoryDropdown = (catName) => {
         setOpenCategory(openCategory === catName ? '' : catName)
@@ -213,8 +263,22 @@ const Furnicom = () => {
                                         <div className="w-full h-[220px] bg-white p-4 relative overflow-hidden flex items-center justify-center">
                                             <img src={product.image} alt={product.name} className="max-w-full max-h-full object-contain transform transition-transform duration-500 group-hover:scale-105" />
                                             <div className="absolute right-[-50px] group-hover:right-3 top-1/2 transform -translate-y-1/2 flex flex-col gap-2 transition-all duration-300 opacity-0 group-hover:opacity-100">
-                                                <button className="w-9 h-9 bg-white border border-gray-200 rounded-xs flex items-center justify-center shadow-xs text-gray-600 hover:bg-[#ff5a33] hover:text-white transition-colors"><FiShoppingCart /></button>
-                                                <button className="w-9 h-9 bg-white border border-gray-200 rounded-xs flex items-center justify-center shadow-xs text-gray-600 hover:bg-[#ff5a33] hover:text-white transition-colors"><FiHeart /></button>
+                                                
+                                                {/* WIRED ADD TO CART (GRID) */}
+                                                <button 
+                                                    onClick={() => handleAddToCart(product)}
+                                                    className="w-9 h-9 bg-white border border-gray-200 rounded-xs flex items-center justify-center shadow-xs text-gray-600 hover:bg-[#ff5a33] hover:text-white transition-colors"
+                                                >
+                                                    <FiShoppingCart />
+                                                </button>
+
+                                                {/* WIRED ADD TO WISHLIST (GRID) */}
+                                                <button 
+                                                    onClick={() => handleAddToWishlist(product)}
+                                                    className="w-9 h-9 bg-white border border-gray-200 rounded-xs flex items-center justify-center shadow-xs text-gray-600 hover:bg-[#ff5a33] hover:text-white transition-colors"
+                                                >
+                                                    <FiHeart />
+                                                </button>
                                                 <button className="w-9 h-9 bg-white border border-gray-200 rounded-xs flex items-center justify-center shadow-xs text-gray-600 hover:bg-[#ff5a33] hover:text-white transition-colors"><FiSearch /></button>
                                             </div>
                                         </div>
@@ -246,9 +310,24 @@ const Furnicom = () => {
                                                 {product.oldPrice && <span className="text-gray-400 text-[13px] line-through">${product.oldPrice.toFixed(2)}</span>}
                                             </div>
                                             <p className="text-[13px] text-grey-400 font-light leading-relaxed max-w-2xl" style={{paddingBottom: '5px'}}>{product.desc}</p>
-                                            <div className="pt-2">
-                                                <button className="bg-[#ff5a33] text-white text-[12px] uppercase font-bold px-6 py-2.5 rounded-xs hover:bg-[#1c2e3a] transition-colors tracking-wider flex items-center gap-2" style={{padding: '5px'}}>
+                                            
+                                            {/* WIRED ACTION BUTTONS (LIST VIEW) */}
+                                            <div className="pt-2 flex gap-2">
+                                                <button 
+                                                    onClick={() => handleAddToCart(product)}
+                                                    className="bg-[#ff5a33] text-white text-[12px] uppercase font-bold px-6 py-2.5 rounded-xs hover:bg-[#1c2e3a] transition-colors tracking-wider flex items-center gap-2" 
+                                                    style={{padding: '5px'}}
+                                                >
                                                     <FiShoppingCart /> Add To Cart
+                                                </button>
+                                                
+                                                {/* Added a matching Wishlist button for List View */}
+                                                <button 
+                                                    onClick={() => handleAddToWishlist(product)}
+                                                    className="w-10 h-10 border border-gray-200 text-gray-600 hover:bg-[#ff5a33] hover:text-white hover:border-[#ff5a33] rounded-xs flex items-center justify-center transition-colors shadow-sm"
+                                                    title="Add to Wishlist"
+                                                >
+                                                    <FiHeart className="text-[16px]" />
                                                 </button>
                                             </div>
                                         </div>
