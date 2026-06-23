@@ -11,4 +11,8 @@ router.post('/add', productController.createProduct);
 // Route to SEARCH products (MidHeader Live Search)
 router.get('/search', productController.searchProducts);
 
+router.put('/:id', productController.updateProduct);
+
+router.delete('/:id', productController.deleteProducts);
+
 module.exports = router;

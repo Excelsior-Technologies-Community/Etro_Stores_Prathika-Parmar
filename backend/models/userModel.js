@@ -15,7 +15,17 @@ const UserModel = {
             callback(err,results);
         });
 
+    },
+
+    getAllUsers: (callBack) => {
+        // We select everything EXCEPT the password hash for safety
+        const query = "SELECT id, name, email, created_at FROM users ORDER BY created_at DESC";
+        db.query(query, (err, results) => {
+            callBack(err, results);
+        });
     }
-}
+
+
+};
 
 module.exports = UserModel;

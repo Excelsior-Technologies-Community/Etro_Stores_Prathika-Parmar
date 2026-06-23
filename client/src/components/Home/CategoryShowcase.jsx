@@ -1,7 +1,9 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { FaShoppingCart, FaHeart, FaSearch } from 'react-icons/fa';
 
-const CategoryBlock = ({ data }) => {
+// --- SUB-COMPONENT: Accepts the new onAddToCart and onAddToWishlist props ---
+const CategoryBlock = ({ data, onAddToCart, onAddToWishlist }) => {
     const isRightAligned = data.align === 'right';
 
     return (
@@ -27,32 +29,31 @@ const CategoryBlock = ({ data }) => {
                     {/* 2. Middle Spacer (Pushes everything else to the right) */}
                     <div className="flex-1"></div>
                     
-                    {/* Add 'ml-6' to force a healthy gap between the tab and the 'See All' link */}
-<div className={`flex-1 flex items-center px-6 ml-6 ${isRightAligned ? 'justify-end' : 'justify-start'}`}>
-    <a href="#" className="text-gray-500 text-[12px] hover:text-[#ff5a33] transition-colors flex items-center gap-1 font-bold uppercase" style={{paddingRight:'20px'}}>
-        See All <span className="text-[10px]">▶</span>
-    </a>
-</div>
+                    {/* 3. See All Link */}
+                    <div className={`flex-1 flex items-center px-6 ml-6 ${isRightAligned ? 'justify-end' : 'justify-start'}`}>
+                        <a href="#" className="text-gray-500 text-[12px] hover:text-[#ff5a33] transition-colors flex items-center gap-1 font-bold uppercase" style={{paddingRight:'20px'}}>
+                            See All <span className="text-[10px]">▶</span>
+                        </a>
+                    </div>
 
-{/* Replace your 1. Colored Title Tab section with this: */}
-<div 
-    className="text-white px-8 py-3 text-[16px] font-extrabold uppercase tracking-wide flex-shrink-0 relative flex items-center"
-    style={{ backgroundColor: data.color, padding:'10px 20px' }}
->
-    {data.title}
-    
-    {/* SVG Slant - Mathematically perfect, no jagged edges */}
-    <svg 
-        className={`absolute top-0 h-full w-4 ${isRightAligned ? '-left-4' : '-right-4'}`} 
-        viewBox="0 0 16 48" 
-        preserveAspectRatio="none"
-    >
-        <path 
-            d={isRightAligned ? "M16 0 L0 48 L16 48 Z" : "M0 0 L16 48 L0 48 Z"} 
-            fill={data.color} 
-        />
-    </svg>
-</div>
+                    {/* 4. Colored Title Tab */}
+                    <div 
+                        className="text-white px-8 py-3 text-[16px] font-extrabold uppercase tracking-wide flex-shrink-0 relative flex items-center"
+                        style={{ backgroundColor: data.color, padding:'10px 20px' }}
+                    >
+                        {data.title}
+                        
+                        <svg 
+                            className={`absolute top-0 h-full w-4 ${isRightAligned ? '-left-4' : '-right-4'}`} 
+                            viewBox="0 0 16 48" 
+                            preserveAspectRatio="none"
+                        >
+                            <path 
+                                d={isRightAligned ? "M16 0 L0 48 L16 48 Z" : "M0 0 L16 48 L0 48 Z"} 
+                                fill={data.color} 
+                            />
+                        </svg>
+                    </div>
                 </div>
             ) : (
                 /* =========================================
@@ -117,14 +118,6 @@ const CategoryBlock = ({ data }) => {
                             )}
                         </div>
 
-                        {/* Special Feature Circle
-                        {product.featuredCircleColor && (
-                            <div 
-                                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[60%] w-48 h-48 rounded-full z-0 opacity-20"
-                                style={{ backgroundColor: product.featuredCircleColor }}
-                            ></div>
-                        )} */}
-
                         {/* Top: Product Image */}
                         <div className="flex-1 p-6 flex items-center justify-center relative z-10">
                             <img 
@@ -133,12 +126,20 @@ const CategoryBlock = ({ data }) => {
                                 className="max-w-full max-h-[200px] object-contain group-hover:scale-110 transition-transform duration-500 drop-shadow-sm"
                             />
 
-                            {/* Hover Action Buttons */}
+                            {/* Hover Action Buttons - NOW WIRED UP */}
                             <div className="absolute right-4 top-1/2 -translate-y-1/2 flex flex-col gap-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 translate-x-4 group-hover:translate-x-0">
-                                <button className="w-8 h-8 bg-white border border-gray-200 hover:bg-black hover:border-black hover:text-white text-gray-600 flex items-center justify-center rounded-sm transition-colors cursor-pointer shadow-sm">
+                                <button 
+                                    onClick={() => onAddToCart(product)}
+                                    className="w-8 h-8 bg-white border border-gray-200 hover:bg-black hover:border-black hover:text-white text-gray-600 flex items-center justify-center rounded-sm transition-colors cursor-pointer shadow-sm"
+                                    title="Add to Cart"
+                                >
                                     <FaShoppingCart className="text-[12px]" />
                                 </button>
-                                <button className="w-8 h-8 bg-white border border-gray-200 hover:bg-[#ff5a33] hover:border-[#ff5a33] hover:text-white text-gray-600 flex items-center justify-center rounded-sm transition-colors cursor-pointer shadow-sm">
+                                <button 
+                                    onClick={() => onAddToWishlist(product)}
+                                    className="w-8 h-8 bg-white border border-gray-200 hover:bg-[#ff5a33] hover:border-[#ff5a33] hover:text-white text-gray-600 flex items-center justify-center rounded-sm transition-colors cursor-pointer shadow-sm"
+                                    title="Add to Wishlist"
+                                >
                                     <FaHeart className="text-[12px]" />
                                 </button>
                                 <button className="w-8 h-8 bg-white border border-gray-200 hover:bg-[#00a8ff] hover:border-[#00a8ff] hover:text-white text-gray-600 flex items-center justify-center rounded-sm transition-colors cursor-pointer shadow-sm">
@@ -169,6 +170,7 @@ const CategoryBlock = ({ data }) => {
 
 // --- MAIN COMPONENT ---
 const CategoryShowcase = () => {
+    const navigate = useNavigate();
     
     const showcaseData = [
         {
@@ -188,7 +190,7 @@ const CategoryShowcase = () => {
             id: 'tech',
             title: 'TECHNOLOGY',
             color: '#4751c2', 
-            align: 'right', // This triggers the explicit right-side layout!
+            align: 'right', 
             links: ['Electronics', 'Television', 'Conditional', 'Laptop', 'Smartphone'],
             products: [
                 { id: 5, badge: '-3%', title: 'Officia Picanha', price: '$68.00', oldPrice: '$70.00', image: 'https://images.unsplash.com/photo-1579586337278-3befd40fd17a?q=80&w=400&auto=format&fit=crop' },
@@ -212,11 +214,86 @@ const CategoryShowcase = () => {
         }
     ];
 
+    // --- FULL-STACK CART FUNCTION ---
+    const handleAddToCart = async (product) => {
+        const userStr = localStorage.getItem('user');
+        if (!userStr) {
+            alert("Please log in to add items to your cart!");
+            navigate('/login'); 
+            return;
+        }
+        
+        const loggedInUser = JSON.parse(userStr);
+        const numericPrice = typeof product.price === 'string' ? parseFloat(product.price.replace('$', '')) : product.price;
+
+        try {
+            const response = await fetch('http://localhost:5000/api/cart/add', {
+                method: 'POST',
+                headers: { "Content-Type": 'application/json' },
+                body: JSON.stringify({
+                    userId: loggedInUser.id, 
+                    productId: product.id,
+                    name: product.title, 
+                    price: numericPrice,
+                    image: product.image
+                })
+            });
+            const data = await response.json();
+            if (response.ok) {
+                alert(`Success: ${product.title} added to your cart!`);
+            } else {
+                alert(`Error: ${data.error}`);
+            }
+        } catch (error) {
+            console.error("Failed to connect to backend:", error);
+        }
+    };
+
+    // --- FULL-STACK WISHLIST FUNCTION ---
+    const handleAddToWishlist = async (product) => {
+        const userStr = localStorage.getItem('user');
+        if (!userStr) {
+            alert("Please log in to save items to your wishlist!");
+            navigate('/login');
+            return;
+        }
+
+        const loggedInUser = JSON.parse(userStr);
+        const numericPrice = typeof product.price === 'string' ? parseFloat(product.price.replace('$', '')) : product.price;
+
+        try {
+            const response = await fetch('http://localhost:5000/api/wishlist/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    userId: loggedInUser.id, 
+                    productId: product.id,
+                    name: product.title, 
+                    price: numericPrice,
+                    image: product.image
+                })
+            });
+            const data = await response.json();
+            if (response.ok) {
+                alert(`Success: ${product.title} added to your wishlist!`);
+            } else {
+                alert(`Error: ${data.error}`);
+            }
+        } catch (error) {
+            console.error("Failed to connect to backend:", error);
+        }
+    };
+
     return (
         <div className="w-full bg-[#f9fafb] py-8 font-sans">
             <div className="max-w-[1440px] mx-auto w-full box-border" style={{ paddingLeft: '40px', paddingRight: '40px' }}>
                 {showcaseData.map((category) => (
-                    <CategoryBlock key={category.id} data={category} />
+                    <CategoryBlock 
+                        key={category.id} 
+                        data={category} 
+                        onAddToCart={handleAddToCart}
+                        onAddToWishlist={handleAddToWishlist}
+                    />
                 ))}
             </div>
         </div>

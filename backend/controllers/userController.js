@@ -40,7 +40,7 @@ const userController = {
             //find user in database 
             UserModel.findByEmail(email, async(err, results) => {
                 if(err) return res.status(500).json({error:"database error"});
-                if(results.length === 0) return res.status(404).josn({error: "User Not Found"});
+                if(results.length === 0) return res.status(404).json({error: "User Not Found"});
 
                 const user = results[0];
 
@@ -55,6 +55,16 @@ const userController = {
         }catch(error){
             res.status(500).json({error: 'Server error'});
         }
+    },
+
+    getUsers: (req, res) => {
+        UserModel.getAllUsers((err, results) => {
+            if (err) {
+                console.error("Error fetching users:", err);
+                return res.status(500).json({ error: "Database error" });
+            }
+            res.status(200).json(results);
+        });
     }
 };
 
