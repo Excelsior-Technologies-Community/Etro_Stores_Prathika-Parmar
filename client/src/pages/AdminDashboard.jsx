@@ -14,16 +14,39 @@ const AdminDashboard = () => {
     const [usersList, setUsersList] = useState([]);
     const [loading, setLoading] = useState(false);
     
-    // 🧮 LIVE MATH ENGINE
+    // 🧮 LIVE MATH ENGINE 1: Total Value
     const totalInventoryValue = productsList.reduce((sum, item) => sum + (Number(item.price) || 0), 0);
 
-    // 📊 CATEGORY BREAKDOWN ENGINE
-    const categoryBreakdown = productsList.reduce((acc, item) => {
+    // 📊 MATH ENGINE 2: Category Breakdown
+    // 📊 SUPER CATEGORY ENGINE: Calculates both Unit Count and Net Dollar Sum per category!
+    const categoryStats = productsList.reduce((acc, item) => {
         const cat = item.category || 'Uncategorized';
-        acc[cat] = (acc[cat] || 0) + 1;
+        if (!acc[cat]) acc[cat] = { count: 0, totalValue: 0 };
+        acc[cat].count += 1;
+        acc[cat].totalValue += (Number(item.price) || 0);
         return acc;
     }, {});
-    const categoryEntries = Object.entries(categoryBreakdown);
+
+    // 💎 MATH ENGINE 3: The Crown Jewels (Top 3 most expensive items)
+    const crownJewels = [...productsList]
+        .sort((a, b) => (Number(b.price) || 0) - (Number(a.price) || 0))
+        .slice(0, 3);
+
+    // 🏷️ MATH ENGINE 4: Price Tier Classifier
+    const priceTiers = productsList.reduce((acc, item) => {
+        const p = Number(item.price) || 0;
+        if (p <= 50) acc.budget.count++;
+        else if (p <= 250) acc.standard.count++;
+        else acc.flagship.count++;
+        return acc;
+    }, { 
+        budget: { count: 0, label: 'Budget (< $50)', color: 'bg-emerald-500' }, 
+        standard: { count: 0, label: 'Standard ($51 - $250)', color: 'bg-blue-500' }, 
+        flagship: { count: 0, label: 'Flagship (> $250)', color: 'bg-purple-500' } 
+    });
+
+    // 🚨 MATH ENGINE 5: LOW STOCK DETECTOR (Sirf wo items jinka stock 3 ya usse kam hai)
+    const criticalStockItems = productsList.filter(item => item.stock !== undefined && Number(item.stock) <= 3);
 
     // Form state (No Desc Column)
     const [newProduct, setNewProduct] = useState({
@@ -31,6 +54,8 @@ const AdminDashboard = () => {
     });
     const [formStatus, setFormStatus] = useState('');
     const [editingId, setEditingId] = useState(null);
+    // 🔘 TRACKER TOGGLE STATE ('count' = Unit volume | 'value' = Dollar worth)
+    const [catMetric, setCatMetric] = useState('count');
 
     // 1. SECURITY CHECK
     useEffect(() => {
@@ -127,7 +152,32 @@ const AdminDashboard = () => {
         <div className="space-y-6 max-w-6xl">
             <h2 className="text-2xl font-bold text-gray-800 uppercase tracking-wider" style={{padding: '10px'}}>Dashboard Overview</h2>
             
-            {/* 4 CARDS */}
+            {/* 🚨 THE EMERGENCY RESTOCK BANNER (Blinks only when stock drops <= 3) */}
+            {criticalStockItems.length > 0 && (
+                <div className="bg-gradient-to-r from-red-600 to-[#ff5a33] text-white p-4 rounded-sm shadow-md flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 " style={{margin: '10px 10px 20px 10px', padding: '10px'}} >
+                    <div className="flex items-center gap-3">
+                        <span className="flex h-3 w-3 relative">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
+                        </span>
+                        <div>
+                            <p className="text-xs font-black tracking-widest uppercase text-red-100">Warehouse Alert</p>
+                            <p className="text-sm font-bold mt-0.5">
+                                <span className="underline font-extrabold">{criticalStockItems.length} Products</span> are critically low on stock and require immediate re-ordering.
+                            </p>
+                        </div>
+                    </div>
+                    <button 
+                        onClick={() => setActiveTab('Products')}
+                        className="bg-[#0b212f] hover:bg-white hover:text-[#ff5a33] text-white text-xs font-black px-5 py-2.5 rounded-xs uppercase tracking-wider transition-all cursor-pointer flex-shrink-0 shadow-sm"
+                        style={{padding: '5px'}}
+                    >
+                        Review Inventory →
+                    </button>
+                </div>
+            )}
+
+            {/* 1. SKYLINE: 4 CARDS */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" style={{padding: '10px'}}>
                 <div className="bg-white p-6 rounded-sm border border-gray-200 shadow-sm flex items-center justify-between" style={{padding: '10px'}}>
                     <div><p className="text-[12px] text-gray-500 font-bold uppercase tracking-wide">Total Stock Value</p><h3 className="text-2xl font-extrabold text-gray-800 mt-1">${totalInventoryValue.toFixed(2)}</h3></div>
@@ -147,30 +197,68 @@ const AdminDashboard = () => {
                 </div>
             </div>
 
-            {/* WIDESCREEN PANORAMIC CATEGORY TRACKER */}
-            <div className="pt-4" style={{padding: '10px'}}>
-                <div className="bg-white p-8 rounded-sm border border-gray-200 shadow-sm"  >
-                    <div className="flex justify-between items-center border-b border-gray-100 pb-4 mb-6" style={{padding: '10px'}}>
-                        <h3 className="text-[14px] font-extrabold text-gray-800 uppercase tracking-wider">
-                            Warehouse Volume by Category
-                        </h3>
-                        <span className="text-xs font-bold text-gray-400 uppercase">{productsList.length} Total Units Logged</span>
+        
+            {/* 2. HORIZON: INTERACTIVE WIDESCREEN CATEGORY TRACKER */}
+            <div className="pt-2" style={{padding: '10px'}}>
+                <div className="bg-white p-8 rounded-sm border border-gray-200 shadow-sm">
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-gray-100 pb-4 mb-6 gap-4" style={{padding: '10px'}}>
+                        <div>
+                            <h3 className="text-[14px] font-extrabold text-gray-800 uppercase tracking-wider">
+                                Warehouse Category Breakdown
+                            </h3>
+                            <p className="text-xs text-gray-400 mt-0.5">
+                                Showing catalog share by <span className="font-black text-[#ff5a33] uppercase">{catMetric === 'count' ? 'Physical Stock Volume' : 'Monetary Net Worth'}</span>
+                            </p>
+                        </div>
+                        
+                        {/* 🔘 THE SILICON VALLEY DUAL-SWITCH */}
+                        <div className="flex bg-gray-100 p-1 rounded-xs border border-gray-200 shadow-inner gap-1" style={{padding: '10px'}}>
+                            <button 
+                                onClick={() => setCatMetric('count')}
+                                className={`text-xs font-black px-4 py-1.5 rounded-xs uppercase transition-all duration-300 cursor-pointer ${catMetric === 'count' ? 'bg-[#0b212f] text-white shadow-sm' : 'text-gray-500 hover:text-black'}`} 
+                                style={{padding: '5px'}}
+                            >
+                                📦 Units Count
+                            </button>
+                            <button 
+                                onClick={() => setCatMetric('value')}
+                                className={`text-xs font-black px-4 py-1.5 rounded-xs uppercase transition-all duration-300 cursor-pointer ${catMetric === 'value' ? 'bg-[#ff5a33] text-white shadow-sm' : 'text-gray-500 hover:text-black'}`}
+                                style={{padding: '5px'}}
+                            >
+                                💰 Net Dollar Worth
+                            </button>
+                        </div>
                     </div>
                     
                     {productsList.length === 0 ? (
-                        <p className="text-xs text-gray-400 italic py-8 text-center" >Add products to generate live distribution...</p>
+                        <p className="text-xs text-gray-400 italic py-8 text-center">Add products to generate live distribution...</p>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6" style={{padding: '10px'}}>
-                            {categoryEntries.map(([catName, count]) => {
-                                const percentage = Math.round((count / productsList.length) * 100);
+                            {Object.entries(categoryStats).map(([catName, stats]) => {
+                                const isCount = catMetric === 'count';
+                                const shareValue = isCount ? stats.count : stats.totalValue;
+                                const grandTotal = isCount ? productsList.length : totalInventoryValue;
+                                const percentage = grandTotal > 0 ? Math.round((shareValue / grandTotal) * 100) : 0;
+
                                 return (
-                                    <div key={catName} className="bg-gray-50/50 p-3 rounded border border-gray-100">
-                                        <div className="flex justify-between text-xs font-bold mb-2">
+                                    <div key={catName} className="bg-gray-50/50 p-3 rounded border border-gray-100 transition-all">
+                                        <div className="flex justify-between text-xs font-bold mb-2" style={{padding: '10px'}}>
                                             <span className="text-gray-800 uppercase">{catName}</span>
-                                            <span className="text-gray-400 font-mono">{count} items <span className="text-[#ff5a33] font-extrabold">({percentage}%)</span></span>
+                                            <span className="text-gray-400 font-mono">
+                                                {isCount 
+                                                    ? `${stats.count} units` 
+                                                    : `$${stats.totalValue.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`
+                                                } 
+                                                <span className={`font-black ml-1.5 ${isCount ? 'text-[#0b212f]' : 'text-[#ff5a33]'}`}>
+                                                    ({percentage}%)
+                                                </span>
+                                            </span>
                                         </div>
                                         <div className="w-full bg-gray-200 h-2.5 rounded-full overflow-hidden">
-                                            <div className="bg-[#0b212f] hover:bg-[#ff5a33] h-full rounded-full transition-all duration-700 cursor-pointer" style={{ width: `${percentage}%` }}></div>
+                                            <div 
+                                                className={`h-full rounded-full transition-all duration-700 ${isCount ? 'bg-[#0b212f]' : 'bg-[#ff5a33]'}`} 
+                                                style={{ width: `${percentage}%` }}
+                                            ></div>
                                         </div>
                                     </div>
                                 )
@@ -178,6 +266,83 @@ const AdminDashboard = () => {
                         </div>
                     )}
                 </div>
+            </div>
+
+            {/* 3. FOUNDATION: THE FLAGSHIP MATRIX & CROWN JEWELS */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 pt-2" style={{padding: '10px'}}>
+                
+                {/* Left (2 cols): Price Tier Segmentation */}
+                <div className="bg-white p-8 rounded-sm border border-gray-200 shadow-sm lg:col-span-2 flex flex-col justify-between">
+                    <div>
+                        <div className="flex justify-between items-center border-b border-gray-100 pb-4 mb-6" style={{padding: '10px'}}>
+                            <h3 className="text-[14px] font-extrabold text-gray-800 uppercase tracking-wider">
+                                Inventory Price Brackets
+                            </h3>
+                            <span className="text-xs font-bold text-gray-400 uppercase">Automated Segmentation</span>
+                        </div>
+
+                        {productsList.length === 0 ? (
+                            <p className="text-xs text-gray-400 italic py-8 text-center" style={{padding: '10px'}}>
+                                Awaiting product catalog...
+                            </p>
+                        ) : (
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2" style={{padding: '10px'}}>
+                                {Object.entries(priceTiers).map(([key, tier]) => (
+                                    <div key={key} className="bg-gray-50/80 p-5 rounded border border-gray-100 flex flex-col justify-between" style={{padding: '10px'}}>
+                                        <div>
+                                            <span className="text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">{tier.label}</span>
+                                            <h4 className="text-3xl font-extrabold text-gray-800 mt-2">{tier.count} <span className="text-xs font-medium text-gray-400">units</span></h4>
+                                        </div>
+                                        <div className="mt-6">
+                                            <div className={`h-1.5 w-full rounded-full ${tier.color}`}></div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* Right (1 col): The Crown Jewels Leaderboard */}
+                <div className="bg-white p-8 rounded-sm border border-gray-200 shadow-sm flex flex-col justify-between" style={{padding: '10px'}}>
+                    <div>
+                        <div className="flex justify-between items-center border-b border-gray-100 pb-4 mb-6">
+                            <h3 className="text-[14px] font-extrabold text-gray-800 uppercase tracking-wider">
+                                Crown Jewels
+                            </h3>
+                            <span className="text-[9px] bg-amber-50 text-[#ff5a33] font-black px-2 py-0.5 rounded border border-amber-200/50" style={{padding: '5px'}}>TOP VALUE</span>
+                        </div>
+
+                        <div className="space-y-4">
+                            {crownJewels.length === 0 ? (
+                                <p className="text-xs text-gray-400 italic py-6 text-center">No catalog data...</p>
+                            ) : (
+                                crownJewels.map((item, idx) => (
+                                    <div key={item.id} className="flex items-center gap-3.5 p-2 rounded hover:bg-orange-50/30 transition-colors border border-transparent hover:border-orange-100" style={{paddingTop: '10px'}}>
+                                        <span className={`font-mono text-xs font-black w-4 text-center ${idx === 0 ? 'text-amber-500' : idx === 1 ? 'text-gray-400' : 'text-amber-700'}`}>
+                                            #{idx+1}
+                                        </span>
+                                        <div className="w-10 h-10 rounded bg-gray-50 border border-gray-100 flex items-center justify-center p-1 flex-shrink-0">
+                                            <img src={item.image} alt="" className="max-w-full max-h-full object-contain" />
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-xs font-bold text-gray-900 truncate">{item.name}</p>
+                                            <p className="text-[9px] text-gray-400 uppercase font-black tracking-wider mt-0.5">{item.category}</p>
+                                        </div>
+                                        <span className="text-xs font-black text-[#1c2e3a]" >
+                                            ${Number(item.price).toLocaleString('en-US', {minimumFractionDigits: 2})}
+                                        </span>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="pt-4 mt-4 border-t border-gray-50 text-[10px] text-gray-400 text-center italic" style={{paddingTop: '10px'}}>
+                        Real-time luxury valuation engine
+                    </div>
+                </div>
+
             </div>
         </div>
     );
