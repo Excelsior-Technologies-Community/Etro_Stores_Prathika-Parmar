@@ -63,7 +63,10 @@ const Hero = () => {
                     ].map((item) => (
                         <li 
                             key={item.path} 
-                            className={`flex-1 text-center py-4 text-[13px] font-bold text-[#333] cursor-pointer hover:text-[#ff5a33] border-r border-gray-100 last:border-none relative transition-colors`}>
+                            className={`list-none flex-1 text-center py-4 text-[13px] font-bold text-[#333] cursor-pointer hover:text-[#ff5a33] border-r border-gray-100 last:border-none relative transition-colors`
+                            }
+                            style={{paddingBottom: '10px'}}
+                            >
 
                                 <Link to={item.path} 
                                 className="absolute z-10" >

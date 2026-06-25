@@ -36,6 +36,7 @@ function App() {
         <Route path="/furnicom" element={< Furnicom/>} />
         <Route path="/blogs" element={<Blog/>} />
         <Route path="/top-deals" element={<TopDeals/>} />
+        <Route path="/categories" element={<Category/>} />
         <Route path="/best-selling" element={<BestSelling/>} />
         <Route path="/recommended" element={<Recom/>} />
         <Route path="/top-brands" element={<TopBrands/>} />

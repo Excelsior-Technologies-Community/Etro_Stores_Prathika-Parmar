@@ -5,30 +5,35 @@ import Footer from '../components/Footer/Footer';
 
 const Contact = () => {
     const [formData, setFormData] = React.useState({
-        name: '',
-        emial: '',
-        phone: '',
-        message: ''
+        name: '', email: '', phone: '', message: '' // 🐛 TYPO FIXED: 'emial' to 'email'
     });
+    const [status, setStatus] = React.useState(''); // Success/Error message dikhane ke liye
 
     const handleChange = (e) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
-        });
+        setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // Here you would typically handle form submission, e.g., send data to a server
-        console.log('Form submitted:', formData);
-        // Reset form after submission
-        setFormData({
-            name: '',
-            emial: '',
-            phone: '',
-            message: ''
-        });
+        setStatus('Sending...');
+
+        try {
+            const response = await fetch('http://localhost:5000/api/contacts/add', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            });
+
+            if (response.ok) {
+                setStatus('Message sent successfully! We will get back to you soon.');
+                setFormData({ name: '', email: '', phone: '', message: '' }); // Reset Form
+                setTimeout(() => setStatus(''), 5000); // 5 sec baad message gayab
+            } else {
+                setStatus('Failed to send message. Please try again.');
+            }
+        } catch (error) {
+            setStatus('Server error. Is your backend running?');
+        }
     };
 
     const branches = [

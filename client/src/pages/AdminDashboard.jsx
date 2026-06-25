@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-    FiHome, FiBox, FiUsers, FiShoppingBag, FiDollarSign, FiLogOut, FiTrash2, FiEdit
+    FiHome, FiBox, FiUsers, FiShoppingBag, FiDollarSign, FiLogOut, FiTrash2, FiEdit, FiMail
 } from 'react-icons/fi';
 
 const AdminDashboard = () => {
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('Overview');
     const [adminData, setAdminData] = useState(null);
-
+    const [searchTerm, setSearchTerm ] = useState('');
+    
     // --- LIVE DATABASE STATE ---
     const [productsList, setProductsList] = useState([]);
     const [usersList, setUsersList] = useState([]);
@@ -56,6 +57,33 @@ const AdminDashboard = () => {
     const [editingId, setEditingId] = useState(null);
     // 🔘 TRACKER TOGGLE STATE ('count' = Unit volume | 'value' = Dollar worth)
     const [catMetric, setCatMetric] = useState('count');
+
+    // AdminDashboard.jsx ke top par jahan productsList hai:
+    const [messagesList, setMessagesList] = useState([]);
+
+    // Aur useEffect ke andar:
+    useEffect(() => {
+        if (activeTab === 'Products') fetchProducts();
+        if (activeTab === 'Users') fetchUsers();
+        if (activeTab === 'Messages') fetchMessages(); // 👈 Naya Add kiya
+    }, [activeTab]);
+
+    const fetchMessages = async () => {
+        setLoading(true);
+        try {
+            const res = await fetch('http://localhost:5000/api/contacts');
+            const data = await res.json();
+            setMessagesList(data);
+        } catch (err) { console.error(err); } finally { setLoading(false); }
+    };
+
+    const handleDeleteMessage = async (id) => {
+        if (!window.confirm("Delete this message permanently?")) return;
+        try {
+            await fetch(`http://localhost:5000/api/contacts/${id}`, { method: 'DELETE' });
+            fetchMessages(); // Refresh list
+        } catch (err) { console.error(err); }
+    };
 
     // 1. SECURITY CHECK
     useEffect(() => {
@@ -142,6 +170,57 @@ const AdminDashboard = () => {
             if (res.ok) fetchProducts();
             else alert("Failed to delete product.");
         } catch (err) { console.error(err); }
+    };
+
+    // 🧠 SMART TABLE LOGIC: Filters the list based on search bar
+    const filteredProducts = productsList.filter(item => 
+        item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.category.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    // 📥 EXPORT TO CSV ENGINE
+    const downloadCSV = () => {
+        const headers = ['ID', 'Product Name', 'Category', 'Price ($)', 'Image URL'];
+        // Sirf unhi items ko export karo jo abhi search me dikh rahe hain
+        const rows = filteredProducts.map(p => 
+            `${p.id},"${p.name}","${p.category}",${p.price},"${p.image}"`
+        );
+        
+        const csvContent = "data:text/csv;charset=utf-8," + [headers.join(','), ...rows].join('\n');
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `EtroStore_Inventory_${new Date().toISOString().slice(0,10)}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
+    // ==========================================
+    // 👥 NEW: SMART USERS TABLE (SEARCH & MARKETING EXPORT)
+    // ==========================================
+    const [userSearchTerm, setUserSearchTerm] = useState('');
+
+    const filteredUsers = usersList.filter(u => 
+        u.name.toLowerCase().includes(userSearchTerm.toLowerCase()) ||
+        u.email.toLowerCase().includes(userSearchTerm.toLowerCase())
+    );
+
+    // 📥 MARKETING EMAIL EXPORT ENGINE
+    const downloadUserCSV = () => {
+        const headers = ['Customer ID', 'Full Name', 'Email Address'];
+        const rows = filteredUsers.map(u => 
+            `${u.id},"${u.name}","${u.email}"`
+        );
+        
+        const csvContent = "data:text/csv;charset=utf-8," + [headers.join(','), ...rows].join('\n');
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `EtroStore_Customers_${new Date().toISOString().slice(0,10)}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
     };
 
     // ==========================================
@@ -347,7 +426,7 @@ const AdminDashboard = () => {
         </div>
     );
 
-    const renderProducts = () => (
+   const renderProducts = () => (
         <div className="space-y-10 max-w-6xl">
             <div className="bg-white border border-gray-200 rounded-sm shadow-sm p-8" style={{padding: '10px'}}>
                 <h2 className="text-xl font-bold text-gray-800 uppercase tracking-wider border-b border-gray-100 pb-4 mb-6">
@@ -381,12 +460,48 @@ const AdminDashboard = () => {
             </div>
 
             <div className="bg-white border border-gray-200 rounded-sm shadow-sm overflow-hidden">
-                <div className="p-5 border-b border-gray-100 flex justify-between items-center bg-[#fafafa]" style={{padding: '10px'}}><h3 className="text-[14px] font-extrabold text-gray-800 uppercase tracking-wider" style={{padding: '10px'}}>Live Inventory ({productsList.length})</h3><button onClick={fetchProducts} className="text-xs text-[#ff5a33] font-bold hover:underline cursor-pointer">Refresh Table</button></div>
-                {loading ? (<div className="p-12 text-center text-gray-400 font-medium">Fetching database records...</div>) : productsList.length === 0 ? (<div className="p-12 text-center text-gray-400 font-medium">No products found in MySQL table `products`.</div>) : (
+                {/* 🌟 UPGRADED HEADER WITH SEARCH AND EXPORT */}
+                <div className="p-4 border-b border-gray-100 flex flex-col md:flex-row justify-between items-center bg-[#fafafa] gap-4" style={{padding: '10px'}}>
+                    <h3 className="text-[14px] font-extrabold text-gray-800 uppercase tracking-wider flex items-center gap-2" style={{padding: '10px'}}>
+                        Live Inventory 
+                        <span className="bg-[#ff5a33] text-white text-[10px] px-2 py-0.5 rounded-full" style={{padding: '5px'}}>{filteredProducts.length}</span>
+                    </h3>
+                    
+                    <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+                        {/* 🔍 LIVE SEARCH BAR */}
+                        <div className="relative w-full sm:w-64" style={{padding: '5px'}}>
+                            <input 
+                                type="text" 
+                                placeholder="Search products..." 
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="w-full pl-3 pr-8 py-1.5 border border-gray-300 rounded text-[13px] outline-none focus:border-[#ff5a33] transition-colors shadow-inner"
+                            />
+                            {searchTerm && (
+                                <button onClick={() => setSearchTerm('')} className="absolute right-2 top-1.5 text-gray-400 hover:text-red-500 font-bold text-xs cursor-pointer">✕</button>
+                            )}
+                        </div>
+
+                        {/* 📥 CSV EXPORT BUTTON */}
+                        <button 
+                            onClick={downloadCSV} 
+                            disabled={filteredProducts.length === 0}
+                            className="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white text-[11px] font-bold px-4 py-2 rounded-xs uppercase tracking-wider transition-all cursor-pointer shadow-sm disabled:opacity-50"
+                            style={{padding: '5px'}}
+                        >
+                            ↓ Export CSV
+                        </button>
+
+                        <button onClick={fetchProducts} className="text-xs text-[#1c2e3a] hover:text-[#ff5a33] font-bold hover:underline cursor-pointer ml-2" style={{padding: '5px'}}>Refresh</button>
+                    </div>
+                </div>
+
+                {loading ? (<div className="p-12 text-center text-gray-400 font-medium">Fetching database records...</div>) : filteredProducts.length === 0 ? (<div className="p-12 text-center text-gray-400 font-medium">No products match your search.</div>) : (
                     <table className="w-full text-left border-collapse">
                         <thead><tr className="bg-gray-50 text-[11px] font-extrabold text-gray-500 uppercase border-b border-gray-200" style={{padding: '10px'}}><th className="p-3 w-12 text-center">ID</th><th className="p-3 w-16 text-center">Img</th><th className="p-3">Name</th><th className="p-3">Category</th><th className="p-3">Price</th><th className="p-3 text-right">Actions</th></tr></thead>
-                        <tbody className="divide-y divide-gray-100 text-[13px] text-gray-700" style={{padding: '10px'}}>
-                            {productsList.map(item => (
+                        <tbody className="divide-y divide-gray-100 text-[13px] text-gray-700" style={{paddingTop: '10px'}}>
+                            {/* ⚠️ Mapped using 'filteredProducts' instead of 'productsList' */}
+                            {filteredProducts.map(item => (
                                 <tr key={item.id} className="hover:bg-orange-50/40">
                                     <td className="p-3 text-center font-bold text-gray-400">#{item.id}</td><td className="p-3"><img src={item.image} alt="" className="w-8 h-8 object-contain mx-auto" /></td><td className="p-3 font-bold text-gray-900">{item.name}</td><td className="p-3"><span className="bg-gray-100 text-gray-600 text-[10px] font-extrabold px-2 py-0.5 rounded-xs uppercase">{item.category}</span></td><td className="p-3 font-extrabold text-[#ff5a33]">${Number(item.price).toFixed(2)}</td>
                                     <td className="p-3 text-right space-x-3" style={{padding: '5px'}}><button onClick={() => handleStartEdit(item)} className="text-blue-500 hover:text-blue-700 cursor-pointer p-1" title="Edit Product"><FiEdit /></button><button onClick={() => handleDeleteProduct(item.id, item.name)} className="text-red-500 hover:text-red-700 cursor-pointer p-1" title="Delete Product"><FiTrash2 /></button></td>
@@ -399,15 +514,119 @@ const AdminDashboard = () => {
         </div>
     );
 
-    const renderUsers = () => (
+   const renderUsers = () => (
         <div className="space-y-6 max-w-5xl">
             <div className="bg-white border border-gray-200 rounded-sm shadow-sm overflow-hidden">
-                <div className="p-5 border-b border-gray-100 flex justify-between items-center bg-[#fafafa]" style={{padding: '10px'}}><h3 className="text-[14px] font-extrabold text-gray-800 uppercase tracking-wider">Customer Accounts ({usersList.length})</h3><button onClick={fetchUsers} className="text-xs text-[#ff5a33] font-bold hover:underline cursor-pointer">Refresh Table</button></div>
-                {loading ? (<div className="p-12 text-center text-gray-400 font-medium">Fetching users...</div>) : usersList.length === 0 ? (<div className="p-12 text-center text-gray-400 font-medium">No users found.</div>) : (
+                
+                {/* 🌟 UPGRADED USERS HEADER WITH SEARCH AND EXPORT */}
+                <div className="p-4 border-b border-gray-100 flex flex-col md:flex-row justify-between items-center bg-[#fafafa] gap-4" style={{padding: '10px'}}>
+                    <h3 className="text-[14px] font-extrabold text-gray-800 uppercase tracking-wider flex items-center gap-2" style={{padding: '10px'}}>
+                        Customer Database
+                        <span className="bg-purple-600 text-white text-[10px] px-2 py-0.5 rounded-full" style={{padding: '5px'}}>{filteredUsers.length}</span>
+                    </h3>
+                    
+                    <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+                        {/* 🔍 LIVE EMAIL/NAME SEARCH */}
+                        <div className="relative w-full sm:w-64" style={{padding: '5px'}}>
+                            <input 
+                                type="text" 
+                                placeholder="Search by name or email..." 
+                                value={userSearchTerm}
+                                onChange={(e) => setUserSearchTerm(e.target.value)}
+                                className="w-full pl-3 pr-8 py-1.5 border border-gray-300 rounded text-[13px] outline-none focus:border-purple-500 transition-colors shadow-inner"
+                            />
+                            {userSearchTerm && (
+                                <button onClick={() => setUserSearchTerm('')} className="absolute right-2 top-1.5 text-gray-400 hover:text-red-500 font-bold text-xs cursor-pointer">✕</button>
+                            )}
+                        </div>
+
+                        {/* 📥 MARKETING CSV EXPORT */}
+                        <button 
+                            onClick={downloadUserCSV} 
+                            disabled={filteredUsers.length === 0}
+                            className="w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white text-[11px] font-bold px-4 py-2 rounded-xs uppercase tracking-wider transition-all cursor-pointer shadow-sm disabled:opacity-50"
+                            style={{padding: '5px'}}
+                        >
+                            ↓ Export Contact List
+                        </button>
+
+                        <button onClick={fetchUsers} className="text-xs text-[#1c2e3a] hover:text-purple-600 font-bold hover:underline cursor-pointer ml-2" style={{padding: '5px'}}>Refresh</button>
+                    </div>
+                </div>
+                
+                {loading ? (
+                    <div className="p-12 text-center text-gray-400 font-medium">Fetching users...</div>
+                ) : filteredUsers.length === 0 ? (
+                    <div className="p-12 text-center text-gray-400 font-medium">No users match your search.</div>
+                ) : (
                     <table className="w-full text-left border-collapse" style={{padding: '10px'}}>
-                        <thead><tr className="bg-gray-50 text-[11px] font-extrabold text-gray-500 uppercase border-b border-gray-200"><th className="p-3 w-12 text-center">ID</th><th className="p-3">Full Name</th><th className="p-3">Email Address</th><th className="p-3">Security Hash</th></tr></thead>
+                        <thead>
+                            <tr className="bg-gray-50 text-[11px] font-extrabold text-gray-500 uppercase border-b border-gray-200">
+                                <th className="p-3 w-12 text-center">ID</th>
+                                <th className="p-3">Full Name</th>
+                                <th className="p-3">Email Address</th>
+                                <th className="p-3">Account Type</th>
+                                <th className="p-3">Security Hash</th>
+                            </tr>
+                        </thead>
                         <tbody className="divide-y divide-gray-100 text-[13px] text-gray-700" style={{padding: '10px'}}>
-                            {usersList.map(u => (<tr key={u.id} className="hover:bg-gray-50"><td className="p-3 text-center font-bold text-gray-400">#{u.id}</td><td className="p-3 font-bold text-gray-900">{u.name}</td><td className="p-3 text-gray-600">{u.email}</td><td className="p-3 font-mono text-[11px] text-gray-400 truncate max-w-xs">••••••••</td></tr>))}
+                            {/* ⚠️ Mapped using 'filteredUsers' */}
+                            {filteredUsers.map(u => (
+                                <tr key={u.id} className="hover:bg-purple-50/30 transition-colors" style={{paddingTop: '10px'}}>
+                                    <td className="p-3 text-center font-bold text-gray-400">#{u.id}</td>
+                                    <td className="p-3 font-bold text-gray-900 flex items-center gap-2">
+                                        <div className="w-6 h-6 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center text-[10px] font-black">
+                                            {u.name.charAt(0).toUpperCase()}
+                                        </div>
+                                        {u.name}
+                                    </td>
+                                    <td className="p-3 text-blue-600 hover:underline cursor-pointer">{u.email}</td>
+                                    <td className="p-3">
+                                        {/* Visual tag for user roles (simulated based on ID for demo) */}
+                                        <span className={`text-[9px] font-black px-2 py-0.5 rounded-xs uppercase tracking-widest ${u.id === 1 ? 'bg-amber-100 text-amber-700 border border-amber-200' : 'bg-gray-100 text-gray-500 border border-gray-200'}`}>
+                                            {u.id === 1 ? 'Super Admin' : 'Customer'}
+                                        </span>
+                                    </td>
+                                    <td className="p-3 font-mono text-[11px] text-gray-400 truncate max-w-xs">••••••••</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                )}
+            </div>
+        </div>
+    );
+
+    const renderMessages = () => (
+        <div className="space-y-6 max-w-6xl">
+            <div className="bg-white border border-gray-200 rounded-sm shadow-sm overflow-hidden">
+                <div className="p-5 border-b border-gray-100 flex justify-between items-center bg-[#fafafa]" style={{padding: '10px'}}>
+                    <h3 className="text-[14px] font-extrabold text-gray-800 uppercase tracking-wider">Customer Inquiries ({messagesList.length})</h3>
+                    <button onClick={fetchMessages} className="text-xs text-[#ff5a33] font-bold hover:underline cursor-pointer">Refresh Inbox</button>
+                </div>
+                
+                {loading ? (<div className="p-12 text-center text-gray-400 font-medium" style={{padding: '10px'}}>Fetching inbox...</div>) : messagesList.length === 0 ? (<div className="p-12 text-center text-gray-400 font-medium" style={{padding: '10px'}}>Inbox is empty.</div>) : (
+                    <table className="w-full text-left border-collapse" style={{padding: '10px'}}>
+                        <thead><tr className="bg-gray-50 text-[11px] font-extrabold text-gray-500 uppercase border-b border-gray-200"><th className="p-3 w-32" style={{paddingLeft: '20px'}}>Date</th><th className="p-3 w-48" style={{paddingLeft: '20px'}}>Sender Details</th><th className="p-3 " style={{paddingLeft: '20px'}}>Message</th><th className="p-3 text-right " style={{paddingRight: '20px'}}>Action</th></tr></thead>
+                        <tbody className="divide-y divide-gray-100 text-[13px] text-gray-700" style={{padding: '10px'}}>
+                            {messagesList.map(msg => (
+                                <tr key={msg.id} className="hover:bg-blue-50/30 items-start">
+                                    <td className="p-3 text-[11px] font-bold text-gray-400 align-top" style={{paddingLeft: '20px', paddingTop: '10px'}}>
+                                        {new Date(msg.created_at).toLocaleString()}
+                                    </td>
+                                    <td className="p-3 align-top" style={{paddingLeft: '20px', paddingTop: '10px'}}>
+                                        <p className="font-bold text-gray-900">{msg.name}</p>
+                                        <p className="text-blue-600 text-[11px] hover:underline cursor-pointer"><a href={`mailto:${msg.email}`}>{msg.email}</a></p>
+                                        <p className="text-gray-500 text-[11px]">{msg.phone}</p>
+                                    </td>
+                                    <td className="p-3 text-gray-600 align-top max-w-md italic" style={{paddingLeft: '20px', paddingTop: '10px'}}>
+                                        "{msg.message}"
+                                    </td>
+                                    <td className="p-3 text-right align-top">
+                                        <button onClick={() => handleDeleteMessage(msg.id)} className="text-red-500 hover:text-red-700 cursor-pointer p-1 " style={{paddingRight: '30px', paddingTop: '10px'}}title="Delete Message"><FiTrash2 /></button>
+                                    </td>
+                                </tr>
+                            ))}
                         </tbody>
                     </table>
                 )}
@@ -421,11 +640,11 @@ const AdminDashboard = () => {
                 <div className="p-6 border-b border-[#1c384c] text-center"><h1 className="text-white text-xl font-extrabold tracking-widest uppercase" style={{padding: '10px'}}>Admin <span className="text-[#ff5a33]">Panel</span></h1></div>
                 <div className="p-5 flex items-center gap-3 border-b border-[#1c384c]" style={{padding: '10px'}}><div className="w-9 h-9 rounded-full bg-[#1c384c] flex items-center justify-center text-white font-bold">{adminData?.name?.charAt(0) || 'A'}</div><div><p className="text-[12.5px] font-bold text-white">{adminData?.name || 'Admin'}</p><p className="text-[10px] text-[#ff5a33] uppercase tracking-wider">Superuser</p></div></div>
                 <nav className="flex-1 p-4 space-y-1.5 mt-2" style={{padding: '10px'}}>
-                    {[{ name: 'Overview', icon: <FiHome /> }, { name: 'Products', icon: <FiBox /> }, { name: 'Users', icon: <FiUsers /> }].map(item => (<button key={item.name} onClick={() => setActiveTab(item.name)} className={`w-full flex items-center gap-3 px-4 py-3 rounded-sm text-[13.5px] font-medium transition-all ${activeTab === item.name ? 'bg-[#ff5a33] text-white shadow-md font-bold' : 'hover:bg-[#1c384c] hover:text-white'}`} style={{padding: '10px'}}><span className="text-lg">{item.icon}</span> {item.name}</button>))}
+                    {[{ name: 'Overview', icon: <FiHome /> }, { name: 'Products', icon: <FiBox /> }, { name: 'Users', icon: <FiUsers /> }, { name: 'Messages', icon: <FiMail />}].map(item => (<button key={item.name} onClick={() => setActiveTab(item.name)} className={`w-full flex items-center gap-3 px-4 py-3 rounded-sm text-[13.5px] font-medium transition-all ${activeTab === item.name ? 'bg-[#ff5a33] text-white shadow-md font-bold' : 'hover:bg-[#1c384c] hover:text-white'}`} style={{padding: '10px'}}><span className="text-lg">{item.icon}</span> {item.name}</button>))}
                 </nav>
-                <div className="p-4 border-t border-[#1c384c]"><button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3 text-[13.5px] font-medium text-gray-400 hover:text-red-400 hover:bg-[#1c384c] rounded-sm transition-all" style={{padding: '10px'}}><FiLogOut className="text-lg" /> Logout</button></div>
+                <div className="p-4 border-t border-[#1c384c]"><button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3 text-[13.5px] font-medium text-gray-400 hover:text-red-400 hover:bg-[#1c384c] rounded-sm transition-all" style={{paddingRight: '10px'}}><FiLogOut className="text-lg" /> Logout</button></div>
             </aside>
-            <main className="flex-1 overflow-y-auto p-10">{activeTab === 'Overview' && renderOverview()}{activeTab === 'Products' && renderProducts()}{activeTab === 'Users' && renderUsers()}</main>
+            <main className="flex-1 overflow-y-auto p-10">{activeTab === 'Overview' && renderOverview()}{activeTab === 'Products' && renderProducts()}{activeTab === 'Users' && renderUsers()} {activeTab === 'Messages' && renderMessages()}</main>
         </div>
     );
 };
