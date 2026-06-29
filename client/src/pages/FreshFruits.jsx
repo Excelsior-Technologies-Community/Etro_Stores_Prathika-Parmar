@@ -316,7 +316,7 @@ const FreshFruits = () => {
                             { name: "Grapes", img: "https://images.unsplash.com/photo-1596363505729-4190a9506133?q=80&w=300&auto=format&fit=crop" },
                             { name: "Fresh apples", img: "https://images.unsplash.com/photo-1568702846914-96b305d2aaeb?q=80&w=300&auto=format&fit=crop" },
                             { name: "Ripe bananas", img: "https://images.unsplash.com/photo-1528825871115-3581a5387919?q=80&w=300&auto=format&fit=crop" },
-                            { name: "Watermelon", img: "https://images.unsplash.com/photo-1587049352847-4d4b126a51d5?q=80&w=300&auto=format&fit=crop" }
+                            { name: "Watermelon", img: "https://tse3.mm.bing.net/th/id/OIP.HdkzmeUaroVLPleyXTLTxQHaE7?pid=Api&P=0&h=180" }
                         ].map((cat, i) => (
                             <div key={i} className="flex flex-col items-start hover:shadow-xs transition-shadow cursor-pointer group">
                                 <div className="border border-gray-200 rounded-xs overflow-hidden w-full h-[140px] mb-3">
